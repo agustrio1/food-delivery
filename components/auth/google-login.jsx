@@ -90,7 +90,7 @@ export default function GoogleLogin({ onSuccess, onError }) {
     <Button
       type="button"
       variant="outline"
-      className="w-full"
+      className="w-full bg-amber-500 hover:bg-amber-700 text-slate-50 hover:text-slate-100"
       onClick={handleGoogleButtonClick}
       disabled={loading || !googleReady}
     >

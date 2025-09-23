@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -179,13 +180,7 @@ export default function ResetPasswordForm() {
 
       {!success && (
         <CardFooter>
-          <Button 
-            variant="ghost" 
-            className="w-full"
-            onClick={() => router.push('/login')}
-          >
-            Kembali untuk masuk
-          </Button>
+          <Link href='/login' className="text-slate-900 dark:text-slate-50">Kembali untuk masuk</Link>
         </CardFooter>
       )}
     </Card>

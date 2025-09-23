@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link'
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -172,7 +173,7 @@ export default function RegisterForm() {
             />
           </div>
 
-          <Button type="submit" className="w-full" disabled={loading}>
+          <Button type="submit" className="w-full bg-amber-500 hover:bg-amber-700 text-slate-50 hover:text-slate-100" disabled={loading}>
             {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             {loading ? 'Membuat Akun...' : 'Buat Akun'}
           </Button>
@@ -184,7 +185,7 @@ export default function RegisterForm() {
           </div>
           <div className="relative flex justify-center text-xs uppercase">
             <span className="bg-background px-2 text-muted-foreground">
-              Or sign up with
+              Atau daftar dengan
             </span>
           </div>
         </div>
@@ -198,13 +199,7 @@ export default function RegisterForm() {
       <CardFooter>
         <div className="text-sm text-muted-foreground text-center w-full">
           Sudah punya Akun?{' '}
-          <Button 
-            variant="link" 
-            className="p-0 h-auto text-sm"
-            onClick={() => router.push('/login')}
-          >
-            Masuk
-          </Button>
+          <Link href='/login' className="text-slate-900 dark:text-slate-50">Masuk</Link>
         </div>
       </CardFooter>
     </Card>

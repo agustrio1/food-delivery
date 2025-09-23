@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -94,14 +95,7 @@ export default function ForgotPasswordForm() {
       </CardContent>
 
       <CardFooter>
-        <Button 
-          variant="ghost" 
-          className="w-full"
-          onClick={() => router.push('/login')}
-        >
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Kemabli ke masuk
-        </Button>
+        <Link href='/login' className="text-slate-900 dark:text-slate-50">Masuk</Link>
       </CardFooter>
     </Card>
   );

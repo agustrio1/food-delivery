@@ -63,6 +63,12 @@ const menuItems = [
     roles: ['admin']
   },
   {
+    title: "Variasi Menu",
+    url: "/dashboard/dish-variants",
+    icon: Utensils,
+    roles: ['admin']
+  },
+  {
     title: "Orders",
     url: "/dashboard/orders",
     icon: ShoppingCart,

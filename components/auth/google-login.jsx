@@ -1,98 +1,48 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
 
 export default function GoogleLogin({ onSuccess, onError }) {
   const [loading, setLoading] = useState(false);
-  const [googleReady, setGoogleReady] = useState(false);
-  const router = useRouter();
 
-  const handleGoogleLogin = async (response) => {
+  const handleGoogleLogin = () => {
     setLoading(true);
     
     try {
-      const res = await fetch('/api/auth/google', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          credential: response.credential
-        }),
-      });
-
-      const data = await res.json();
-
-      if (res.ok) {
-        if (onSuccess) {
-          onSuccess(data);
-        } else {
-          router.push('/dashboard');
-        }
-      } else {
-        if (onError) {
-          onError(data.error);
-        } else {
-          console.error(data.error || 'Google login failed');
-        }
-      }
-    } catch (error) {
-      console.error('Google login error:', error);
-      if (onError) {
-        onError('Network error occurred');
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const initializeGoogleSignIn = () => {
-    if (typeof window !== 'undefined' && window.google) {
-      window.google.accounts.id.initialize({
+      const baseUrl = typeof window !== 'undefined' 
+        ? `${window.location.protocol}//${window.location.host}` 
+        : process.env.NEXTAUTH_URL || 'http://localhost:3000';
+      
+      const redirectUri = `${baseUrl}/api/auth/google/callback`;
+      
+      const params = new URLSearchParams({
         client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
-        callback: handleGoogleLogin,
+        redirect_uri: redirectUri,
+        response_type: 'code',
+        scope: 'openid email profile',
+        access_type: 'offline',
+        prompt: 'select_account',
+        state: Math.random().toString(36).substring(2, 15) // CSRF protection
       });
-      setGoogleReady(true);
+      
+      const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`;
+      
+      window.location.href = authUrl;
+    } catch (error) {
+      setLoading(false);
+      if (onError) onError(error);
     }
   };
-
-  const handleGoogleButtonClick = () => {
-    if (window.google && googleReady) {
-      window.google.accounts.id.prompt();
-    }
-  };
-
-  useEffect(() => {
-    // Load Google Sign-In script
-    if (!document.querySelector('script[src="https://accounts.google.com/gsi/client"]')) {
-      const script = document.createElement('script');
-      script.src = 'https://accounts.google.com/gsi/client';
-      script.async = true;
-      script.defer = true;
-      script.onload = initializeGoogleSignIn;
-      document.head.appendChild(script);
-    } else {
-      initializeGoogleSignIn();
-    }
-
-    return () => {
-      const existingScript = document.querySelector('script[src="https://accounts.google.com/gsi/client"]');
-      if (existingScript) {
-        document.head.removeChild(existingScript);
-      }
-    };
-  }, []);
 
   return (
     <Button
       type="button"
       variant="outline"
       className="w-full bg-amber-500 hover:bg-amber-700 text-slate-50 hover:text-slate-100"
-      onClick={handleGoogleButtonClick}
-      disabled={loading || !googleReady}
+      onClick={handleGoogleLogin}
+      disabled={loading}
     >
       {loading ? (
         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -116,7 +66,7 @@ export default function GoogleLogin({ onSuccess, onError }) {
           />
         </svg>
       )}
-      {loading ? 'Signing in...' : 'Lanjutkan dengan Google'}
+      {loading ? 'Redirecting...' : 'Lanjutkan dengan Google'}
     </Button>
   );
 }

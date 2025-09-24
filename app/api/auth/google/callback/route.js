@@ -6,37 +6,53 @@ import { db } from '@/db/client';
 import { users, sessions } from '@/db/schema';
 import { eq, or, count } from 'drizzle-orm';
 
-const getBaseUrl = () => {
+const getBaseUrl = (request) => {
   if (process.env.NODE_ENV === 'production') {
-    return process.env.NEXTAUTH_URL;
+    return process.env.NEXTAUTH_URL || `https://${request.headers.get('host')}`;
   }
+  
+// untuk development
+  const host = request.headers.get('host');
+  if (host && host.includes('localhost')) {
+    return `http://${host}`;
+  }
+  
   return 'http://localhost:3000';
 };
-
-const client = new OAuth2Client(
-  process.env.GOOGLE_CLIENT_ID,
-  process.env.GOOGLE_CLIENT_SECRET,
-  `${getBaseUrl()}/api/auth/google/callback`
-);
 
 export async function GET(request) {
   try {
     const { searchParams } = new URL(request.url);
     const code = searchParams.get('code');
     const error = searchParams.get('error');
-    const baseUrl = getBaseUrl();
+    const state = searchParams.get('state');
+    const baseUrl = getBaseUrl(request);
+
+    /* console.log('=== OAuth Callback Debug ===');
+    console.log('Base URL:', baseUrl);
+    console.log('Request URL:', request.url);
+    console.log('Code:', code ? `${code.substring(0, 10)}...` : 'No code');
+    console.log('Error:', error); */
 
     if (error) {
-      console.error('OAuth error:', error);
+      // console.error('OAuth error:', error);
       return NextResponse.redirect(`${baseUrl}/login?error=access_denied`);
     }
 
     if (!code) {
-      console.error('No authorization code received');
+      // console.error('No authorization code received');
       return NextResponse.redirect(`${baseUrl}/login?error=no_code`);
     }
 
-    console.log('Processing OAuth callback with code:', code.substring(0, 10) + '...');
+    // Pastikan redirect URI sama dengan yang digunakan saat auth
+    const redirectUri = `${baseUrl}/api/auth/google/callback`;
+    // console.log('Using redirect URI:', redirectUri);
+
+    const client = new OAuth2Client(
+      process.env.GOOGLE_CLIENT_ID,
+      process.env.GOOGLE_CLIENT_SECRET,
+      redirectUri
+    );
 
     // Exchange code for tokens
     const { tokens } = await client.getToken(code);
@@ -50,8 +66,6 @@ export async function GET(request) {
 
     const payload = ticket.getPayload();
     const { sub: googleId, email, name, email_verified } = payload;
-
-    console.log('User info received:', { email, name, email_verified });
 
     if (!email_verified) {
       return NextResponse.redirect(`${baseUrl}/login?error=email_not_verified`);
@@ -85,7 +99,6 @@ export async function GET(request) {
       }).returning();
 
       foundUser = newUser[0];
-      console.log('New user created:', foundUser.email);
     } else {
       foundUser = user[0];
       
@@ -103,8 +116,6 @@ export async function GET(request) {
         foundUser.google_id = googleId;
         foundUser.login_type = 'google';
       }
-      
-      console.log('Existing user logged in:', foundUser.email);
     }
 
     // Create JWT token
@@ -130,22 +141,28 @@ export async function GET(request) {
     });
 
     // Create response and set cookie
-    const response = NextResponse.redirect(`${baseUrl}/dashboard`);
+    const response = NextResponse.redirect(`${baseUrl}/`);
     
     response.cookies.set('auth-token', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
-      maxAge: 60 * 60 * 24 * 7,
+      maxAge: 60 * 60 * 24 * 7, // 7 days
       path: '/'
     });
 
-    console.log('OAuth login successful, redirecting to dashboard');
     return response;
 
   } catch (error) {
-    console.error('Google OAuth callback error:', error);
-    const baseUrl = getBaseUrl();
-    return NextResponse.redirect(`${baseUrl}/login?error=oauth_error`);
+    // Log detail error untuk debugging
+    if (error.message) {
+      console.error('Error message:', error.message);
+    }
+    if (error.response) {
+      console.error('Error response:', error.response.data || error.response);
+    }
+    
+    const baseUrl = getBaseUrl(request);
+    return NextResponse.redirect(`${baseUrl}/login?error=oauth_error&details=${encodeURIComponent(error.message || 'Unknown error')}`);
   }
 }

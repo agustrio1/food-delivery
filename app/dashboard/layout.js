@@ -31,7 +31,8 @@ import {
   Package,
   BarChart3,
   CreditCard,
-  MapPin
+  MapPin,
+  BadgePercent
 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Loader2 } from 'lucide-react';
@@ -66,6 +67,12 @@ const menuItems = [
     title: "Variasi Menu",
     url: "/dashboard/dish-variants",
     icon: Utensils,
+    roles: ['admin']
+  },
+  {
+    title: "Pajak (PPn)",
+    url: "/dashboard/taxes",
+    icon: BadgePercent,
     roles: ['admin']
   },
   {

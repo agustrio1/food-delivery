@@ -32,7 +32,8 @@ import {
   BarChart3,
   CreditCard,
   MapPin,
-  BadgePercent
+  BadgePercent,
+  TicketPercent
 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Loader2 } from 'lucide-react';
@@ -73,6 +74,12 @@ const menuItems = [
     title: "Pajak (PPn)",
     url: "/dashboard/taxes",
     icon: BadgePercent,
+    roles: ['admin']
+  },
+  {
+    title: "Diskon",
+    url: "/dashboard/discounts",
+    icon: TicketPercent,
     roles: ['admin']
   },
   {

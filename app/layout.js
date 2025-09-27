@@ -1,4 +1,5 @@
 import { AuthProvider } from '@/contexts/auth-context';
+import { CartProvider } from '@/contexts/cart-provider';
 import { Toaster } from "@/components/ui/sonner";
 import { Skeleton } from '@/components/ui/skeleton';
 import NavbarWrapper from '@/components/navbar-wrapper';
@@ -14,6 +15,7 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body>
         <AuthProvider>
+        <CartProvider>
           <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
             <main className="pb-20">
               {children}
@@ -22,6 +24,7 @@ export default function RootLayout({ children }) {
             {/* Bottom Navbar Wrapper - Client component handles conditional rendering */}
             <NavbarWrapper />
           </div>
+        </CartProvider>
         </AuthProvider>
         <Toaster />
       </body>

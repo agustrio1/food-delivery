@@ -19,7 +19,6 @@ const Navbar = () => {
   const router = useRouter();
   const { user } = useAuth();
 
-  // Determine which menu to show based on user role
   const getLastMenuItem = () => {
     if (!user) return { icon: User, href: '/profile', label: 'Profile' };
     
@@ -52,7 +51,6 @@ const Navbar = () => {
     return pathname.startsWith(href);
   };
 
-  // Handle click with authentication check
   const handleMenuClick = (e, item) => {
     const protectedRoutes = ['/dashboard', '/kitchen', '/cashier', '/profile'];
     
@@ -63,76 +61,69 @@ const Navbar = () => {
     }
   };
 
-  // Find active index for sliding ball position
-  const getActiveIndex = () => {
-    return menuItems.findIndex(item => isActive(item.href));
-  };
-
-  const activeIndex = getActiveIndex();
+  const activeIndex = menuItems.findIndex(item => isActive(item.href));
 
   return (
-    <div className="fixed z-50 w-full max-w-lg -translate-x-1/2 bottom-4 left-1/2">
-      {/* Sliding Ball */}
-      <div 
-        className={`absolute -top-4 w-16 h-16 bg-amber-500 rounded-full transition-all duration-300 ease-out shadow-lg ${
-          activeIndex >= 0 ? 'opacity-100' : 'opacity-0'
-        } flex flex-col items-center justify-center z-20`}
-        style={{
-          left: `calc(${(activeIndex * 25) + 12.5}% - 32px)`,
-        }}
-      >
+    <div className="fixed bottom-0 left-0 right-0 z-50 md:max-w-[375px] md:mx-auto">
+      <div className="relative mx-4 mb-4">
+        {/* Ball */}
         {activeIndex >= 0 && (
-          <>
+          <div 
+            className="absolute -top-3 w-12 h-12 bg-amber-500 rounded-full transition-all duration-300 ease-out shadow-lg flex flex-col items-center justify-center z-30"
+            style={{
+              left: `calc(${(activeIndex * 25) + 12.5}% - 24px)`,
+            }}
+          >
             {React.createElement(menuItems[activeIndex].icon, {
-              className: 'w-5 h-5 mb-1 text-white'
+              className: 'w-4 h-4 mb-0.5 text-white'
             })}
-            <span className="text-[10px] leading-none text-white font-medium">
+            <span className="text-[8px] leading-none text-white font-medium">
               {menuItems[activeIndex].label}
             </span>
-          </>
+          </div>
         )}
-      </div>
-      
-      {/* Navbar background with notch */}
-      <div className="relative bg-white border border-gray-200 rounded-full dark:bg-gray-700 dark:border-gray-600 shadow-lg h-16">
-        {/* Notch/Cutout effect */}
-        <div 
-          className={`absolute -top-4 w-20 h-8 bg-white dark:bg-gray-700 rounded-t-full transition-all duration-300 ease-out ${
-            activeIndex >= 0 ? 'opacity-100' : 'opacity-0'
-          }`}
-          style={{
-            left: `calc(${(activeIndex * 25) + 12.5}% - 40px)`,
-          }}
-        />
         
-        <div className="grid h-full grid-cols-4 mx-auto relative z-10">
-          {menuItems.map((item, index) => {
-            const Icon = item.icon;
-            const active = isActive(item.href);
-            
-            return (
-              <Link 
-                key={item.href} 
-                href={item.href}
-                onClick={(e) => handleMenuClick(e, item)}
-                className={`inline-flex flex-col items-center justify-center px-3 py-2 text-xs font-medium transition-colors duration-200 ${
-                  index === 0 ? 'rounded-l-full' : 
-                  index === menuItems.length - 1 ? 'rounded-r-full' : ''
-                } ${
-                  active 
-                    ? 'text-transparent pointer-events-none' 
-                    : 'text-gray-500 hover:text-amber-600 dark:text-gray-400 dark:hover:text-amber-400'
-                }`}
-              >
-                <Icon 
-                  className={`w-5 h-5 mb-1 transition-colors duration-200 ${
-                    active ? 'text-transparent' : ''
-                  }`} 
-                />
-                <span className="text-[10px] leading-none">{item.label}</span>
-              </Link>
-            );
-          })}
+        {/* Navbar */}
+        <div className="relative bg-white rounded-full shadow-lg h-14 border border-gray-100">
+          {/* Cutout */}
+          {activeIndex >= 0 && (
+            <div 
+              className="absolute -top-3 w-12 h-6 transition-all duration-300 ease-out z-20"
+              style={{
+                left: `calc(${(activeIndex * 25) + 12.5}% - 50%)`,
+                backgroundColor: 'white',
+                borderRadius: '50%',
+                boxShadow: '0 1px 0 0 #f3f4f6',
+              }}
+            />
+          )}
+          
+          <div className="grid h-full grid-cols-4 mx-auto relative z-10">
+            {menuItems.map((item, index) => {
+              const Icon = item.icon;
+              const active = isActive(item.href);
+              
+              return (
+                <Link 
+                  key={item.href} 
+                  href={item.href}
+                  onClick={(e) => handleMenuClick(e, item)}
+                  className={`inline-flex flex-col items-center justify-center px-3 py-2 text-xs font-medium transition-colors duration-200 rounded-full ${
+                    active 
+                      ? 'text-transparent pointer-events-none' 
+                      : 'text-gray-500 hover:text-amber-600 active:text-amber-700'
+                  }`}
+                >
+                  <Icon 
+                    className={`w-4 h-4 mb-0.5 transition-colors duration-200 ${
+                      active ? 'text-transparent' : ''
+                    }`} 
+                  />
+                  <span className="text-[10px] leading-none">{item.label}</span>
+                </Link>
+              );
+            })}
+          </div>
         </div>
       </div>
     </div>
